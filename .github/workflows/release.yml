@@ -32,7 +32,7 @@ jobs:
           cpack -G TGZ
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-builds
           path: |
@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup MSVC
-        uses: microsoft/setup-msvc@v1
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup Qt
         uses: jurplel/install-qt-action@v3
@@ -73,7 +73,7 @@ jobs:
           cpack -G ZIP
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-builds
           path: |
@@ -85,7 +85,7 @@ jobs:
     needs: [build-linux, build-windows]
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
