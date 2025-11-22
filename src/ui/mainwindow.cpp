@@ -189,8 +189,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::checkAutoConnect()
 {
-    if (isAutoConnecting && !streamClient->findChild<QWebSocket*>() && foundDevices.empty()) {
-        // If not connected and no devices found, scan again
+    // If auto-connect is enabled and we are NOT connected, try to scan/connect again
+    if (isAutoConnecting && !streamClient->isConnected()) {
+        // We scan again to find the device (IP might have changed, or it might have just come online)
+        // onScanClicked() clears the list and starts a new scan.
+        // If a device is found, onDeviceFound() will trigger connection because isAutoConnecting is true.
+        qDebug() << "Auto-connect: Scanning for devices...";
         onScanClicked();
     }
 }

@@ -9,11 +9,26 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Network WebSockets Widgets Multimedia)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(AVCODEC REQUIRED libavcodec)
-pkg_check_modules(AVFORMAT REQUIRED libavformat)
-pkg_check_modules(AVUTIL REQUIRED libavutil)
-pkg_check_modules(SWSCALE REQUIRED libswscale)
+if(WIN32)
+    # Windows: Assume FFmpeg is provided via CMAKE_PREFIX_PATH or environment
+    # We can use find_path/find_library or just assume standard layout if FFMPEG_DIR is set
+    set(FFMPEG_DIR $ENV{FFMPEG_DIR} CACHE PATH "Path to FFmpeg installation")
+    
+    include_directories(${FFMPEG_DIR}/include)
+    link_directories(${FFMPEG_DIR}/lib)
+    
+    set(AVCODEC_LIBRARIES avcodec)
+    set(AVFORMAT_LIBRARIES avformat)
+    set(AVUTIL_LIBRARIES avutil)
+    set(SWSCALE_LIBRARIES swscale)
+else()
+    # Linux: Use PkgConfig
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(AVCODEC REQUIRED libavcodec)
+    pkg_check_modules(AVFORMAT REQUIRED libavformat)
+    pkg_check_modules(AVUTIL REQUIRED libavutil)
+    pkg_check_modules(SWSCALE REQUIRED libswscale)
+endif()
 
 add_executable(streamberry-desktop
     src/main.cpp
@@ -52,8 +67,11 @@ target_include_directories(streamberry-desktop PRIVATE
 
 # Installation
 install(TARGETS streamberry-desktop DESTINATION bin)
-install(FILES streamberry-desktop.desktop DESTINATION share/applications)
-install(FILES src/ui/icon.png DESTINATION share/icons/hicolor/256x256/apps RENAME streamberry-desktop.png)
+
+if(UNIX AND NOT APPLE)
+    install(FILES streamberry-desktop.desktop DESTINATION share/applications)
+    install(FILES src/ui/icon.png DESTINATION share/icons/hicolor/256x256/apps RENAME streamberry-desktop.png)
+endif()
 
 # Packaging
 set(CPACK_PACKAGE_NAME "streamberry-desktop")
@@ -64,14 +82,20 @@ set(CPACK_PACKAGE_CONTACT "support@streamberry.com")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 
 # Linux (DEB)
-set(CPACK_GENERATOR "DEB;TGZ")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "StreamBerry Labs")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt6-base-dev, libavcodec-dev, libavformat-dev, libavutil-dev, libswscale-dev, v4l2loopback-dkms")
+if(UNIX AND NOT APPLE)
+    set(CPACK_GENERATOR "DEB;TGZ")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "StreamBerry Labs")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt6-base-dev, libavcodec-dev, libavformat-dev, libavutil-dev, libswscale-dev, v4l2loopback-dkms")
+endif()
 
 # Windows (NSIS)
 if(WIN32)
     set(CPACK_GENERATOR "NSIS;ZIP")
     set(CPACK_NSIS_MODIFY_PATH ON)
+    set(CPACK_NSIS_DISPLAY_NAME "StreamBerry Desktop")
+    set(CPACK_NSIS_PACKAGE_NAME "StreamBerry Desktop")
+    # Add icon for installer if available
+    # set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/icon.ico")
 endif()
 
 include(CPack)

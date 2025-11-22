@@ -27,6 +27,11 @@ void StreamClient::disconnectFromDevice()
     m_webSocket.close();
 }
 
+bool StreamClient::isConnected() const
+{
+    return m_webSocket.state() == QAbstractSocket::ConnectedState;
+}
+
 void StreamClient::setFrameCallback(FrameCallback callback)
 {
     m_frameCallback = callback;

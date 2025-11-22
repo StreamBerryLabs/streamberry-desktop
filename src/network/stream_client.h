@@ -22,6 +22,7 @@ public:
 
     void connectToDevice(const QString& url);
     void disconnectFromDevice();
+    bool isConnected() const;
     
     using FrameCallback = std::function<void(const VideoFrame&)>;
     void setFrameCallback(FrameCallback callback);
