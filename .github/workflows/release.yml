@@ -1,0 +1,38 @@
+name: Release Builder
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake qtbase5-dev
+
+      - name: Configure CMake
+        run: cmake -S . -B build
+
+      - name: Build project
+        run: cmake --build build
+
+      - name: Package Artifact
+        run: |
+          mkdir -p release
+          mv build/streamberry-desktop release/
+          tar -czvf streamberry-desktop-linux.tar.gz -C release .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: "streamberry-desktop-linux.tar.gz"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
