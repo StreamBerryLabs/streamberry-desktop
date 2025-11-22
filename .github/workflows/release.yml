@@ -2,6 +2,8 @@ name: Release Builder
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*.*.*'
 
