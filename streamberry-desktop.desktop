@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=StreamBerry Desktop
+Comment=Use your mobile device as a webcam
+Exec=streamberry-desktop
+Icon=streamberry-desktop
+Terminal=false
+Categories=AudioVideo;Video;
+Keywords=webcam;camera;stream;
