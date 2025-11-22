@@ -9,26 +9,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Network WebSockets Widgets Multimedia)
-if(WIN32)
-    # Windows: Assume FFmpeg is provided via CMAKE_PREFIX_PATH or environment
-    # We can use find_path/find_library or just assume standard layout if FFMPEG_DIR is set
-    set(FFMPEG_DIR $ENV{FFMPEG_DIR} CACHE PATH "Path to FFmpeg installation")
-    
-    include_directories(${FFMPEG_DIR}/include)
-    link_directories(${FFMPEG_DIR}/lib)
-    
-    set(AVCODEC_LIBRARIES avcodec)
-    set(AVFORMAT_LIBRARIES avformat)
-    set(AVUTIL_LIBRARIES avutil)
-    set(SWSCALE_LIBRARIES swscale)
-else()
-    # Linux: Use PkgConfig
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(AVCODEC REQUIRED libavcodec)
-    pkg_check_modules(AVFORMAT REQUIRED libavformat)
-    pkg_check_modules(AVUTIL REQUIRED libavutil)
-    pkg_check_modules(SWSCALE REQUIRED libswscale)
-endif()
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(AVCODEC REQUIRED libavcodec)
+pkg_check_modules(AVFORMAT REQUIRED libavformat)
+pkg_check_modules(AVUTIL REQUIRED libavutil)
+pkg_check_modules(SWSCALE REQUIRED libswscale)
 
 add_executable(streamberry-desktop
     src/main.cpp
